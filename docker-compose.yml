@@ -1,0 +1,19 @@
+# Versi file docker-compose
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16
+    restart: always
+    environment:
+      POSTGRES_USER: ets
+      POSTGRES_PASSWORD: iyan0010
+      POSTGRES_DB: db_pos
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+# Mendefinisikan volume yang akan digunakan oleh services
+volumes:
+  postgres_data:

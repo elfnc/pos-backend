@@ -1,0 +1,72 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  CASHIER
+}
+
+// Model untuk Pengguna (Admin/Kasir)
+model User {
+  id        String   @id @default(uuid())
+  username  String   @unique
+  password  String
+  role      Role     @default(CASHIER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  transactions Transaction[]
+}
+
+model Product {
+  id        String   @id @default(uuid())
+  name      String
+  price     Int
+  stock     Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relasi: Satu produk bisa ada di banyak item transaksi
+  transactionItems TransactionItem[]
+}
+
+// Model untuk Transaksi
+model Transaction {
+  id            String   @id @default(uuid())
+  totalAmount   Int 
+  paymentAmount Int 
+  changeAmount  Int
+  createdAt     DateTime @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  items TransactionItem[]
+}
+
+
+model TransactionItem {
+  id        String   @id @default(uuid())
+  quantity  Int
+  priceAtTransaction Int 
+
+
+  transactionId String
+  transaction   Transaction @relation(fields: [transactionId], references: [id])
+
+
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+}
