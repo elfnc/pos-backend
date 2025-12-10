@@ -9,19 +9,21 @@ export const createTransaction = async (req, res, next) => {
       data: transaction,
     });
   } catch (error) {
-    if (error.message.includes('not found') || error.message.includes('Insufficient')) {
-        error.status = 400;
-    }
     next(error);
   }
 };
 
 export const getAllTransactions = async (req, res, next) => {
   try {
-    const transactions = await transactionService.getAllTransactions();
+    const { page, limit } = req.query;
+    
+    // Panggil service dengan parameter page dan limit
+    const result = await transactionService.getAllTransactions(page || 1, limit || 10);
+    
     res.status(200).json({
       message: 'All transactions fetched successfully',
-      data: transactions,
+      data: result.data,
+      meta: result.meta // Sertakan meta data pagination
     });
   } catch (error) {
     next(error);
@@ -36,6 +38,41 @@ export const getTransactionById = async (req, res, next) => {
       message: 'Transaction details fetched successfully',
       data: transaction,
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const exportTransactions = async (req, res, next) => {
+  try {
+    const { startDate, endDate } = req.query;
+    
+    // Ambil data yang sudah diformat dari service
+    const data = await transactionService.exportTransactions(startDate, endDate);
+
+    if (data.length === 0) {
+      const error = new Error('No transactions found for the selected period');
+      error.status = 404;
+      throw error;
+    }
+
+    // Definisikan field/kolom CSV
+    const fields = [
+      'Transaction ID', 'Date', 'Time', 'Cashier', 
+      'Product Name', 'Quantity', 'Price', 'Total Item Price', 'Total Transaction'
+    ];
+
+    // Convert JSON ke CSV
+    const json2csvParser = new Parser({ fields });
+    const csv = json2csvParser.parse(data);
+
+    // Set Header agar browser menganggap ini file download
+    res.header('Content-Type', 'text/csv');
+    res.attachment(`transactions-${Date.now()}.csv`); // Nama file otomatis
+    
+    // Kirim CSV
+    return res.send(csv);
+
   } catch (error) {
     next(error);
   }
