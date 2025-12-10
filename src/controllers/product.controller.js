@@ -14,10 +14,14 @@ export const createProduct = async (req, res, next) => {
 
 export const getAllProducts = async (req, res, next) => {
   try {
-    const products = await productService.getAllProducts();
+    const { page, limit } = req.query; 
+    
+    const result = await productService.getAllProducts(page || 1, limit || 10);
+    
     res.status(200).json({
       message: 'Products fetched successfully',
-      data: products,
+      data: result.data,
+      meta: result.meta // Kirim metadata pagination ke frontend
     });
   } catch (error) {
     next(error);
