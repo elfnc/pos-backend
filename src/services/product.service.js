@@ -1,4 +1,4 @@
-import prisma from "../lib/prisma.js"
+import prisma from "../lib/prisma.js";
 
 export const createProduct = async (productData) => {
   const { name, price, stock } = productData;
@@ -16,13 +16,17 @@ export const createProduct = async (productData) => {
 export const getAllProducts = async (page = 1, limit = 10) => {
   const skip = (page - 1) * limit;
 
+  // Filter: hanya ambil yang deletedAt-nya null
+  const whereCondition = { deletedAt: null };
+
   const [products, total] = await Promise.all([
     prisma.product.findMany({
+      where: whereCondition,
       skip: parseInt(skip),
       take: parseInt(limit),
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: "desc" },
     }),
-    prisma.product.count()
+    prisma.product.count({ where: whereCondition }), // Hitung hanya yg aktif
   ]);
 
   return {
@@ -31,18 +35,21 @@ export const getAllProducts = async (page = 1, limit = 10) => {
       total,
       page: parseInt(page),
       limit: parseInt(limit),
-      totalPages: Math.ceil(total / limit)
-    }
+      totalPages: Math.ceil(total / limit),
+    },
   };
 };
 
 export const getProductById = async (id) => {
-  const product = await prisma.product.findUnique({
-    where: { id },
+  const product = await prisma.product.findFirst({
+    where: {
+      id,
+      deletedAt: null, // Pastikan tidak mengambil barang yang sudah dihapus
+    },
   });
 
   if (!product) {
-    const error = new Error('Product not found');
+    const error = new Error("Product not found");
     error.status = 404;
     throw error;
   }
@@ -64,7 +71,10 @@ export const updateProduct = async (id, productData) => {
 
 export const deleteProduct = async (id) => {
   await getProductById(id);
-  return await prisma.product.delete({
+  return await prisma.product.update({
     where: { id },
+    data: {
+      deletedAt: new Date(),
+    },
   });
 };

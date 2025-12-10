@@ -3,6 +3,8 @@ import cors from "cors"
 import 'dotenv/config'
 import logger from './utils/logger.js';
 import mainRouter from './routes/index.js';
+import errorMiddleware from "./middlewares/error.middleware.js";
+import { apiLimiter } from "./middlewares/rateLimit.middleware.js";
 
 const app = express();
 const PORT = process.env.PORT || 5000
@@ -15,20 +17,15 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use('/api', apiLimiter);
+
 app.get('/api/health', (req, res) => {
   res.status(200).json({ message: 'Welcome to POS API' });
 });
 
 app.use('/api', mainRouter);
 
-app.use((err, req, res, next) => {
-  logger.error(`${err.status || 500} - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
-  res.status(err.status || 500).json({
-    error: {
-      message: err.message || 'Internal Server Error',
-    },
-  });
-});
+app.use(errorMiddleware);
 
 
 app.listen(PORT, '0.0.0.0', () => {
