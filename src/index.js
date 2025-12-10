@@ -5,6 +5,7 @@ import logger from './utils/logger.js';
 import mainRouter from './routes/index.js';
 import errorMiddleware from "./middlewares/error.middleware.js";
 import { apiLimiter } from "./middlewares/rateLimit.middleware.js";
+import path from 'path';
 
 const app = express();
 const PORT = process.env.PORT || 5000
@@ -23,6 +24,7 @@ app.get('/api/health', (req, res) => {
   res.status(200).json({ message: 'Welcome to POS API' });
 });
 
+app.use('/uploads', express.static(path.join(process.cwd(), 'public/uploads')));
 app.use('/api', mainRouter);
 
 app.use(errorMiddleware);

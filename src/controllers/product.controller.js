@@ -2,7 +2,7 @@ import * as productService from '../services/product.service.js';
 
 export const createProduct = async (req, res, next) => {
   try {
-    const product = await productService.createProduct(req.body);
+    const product = await productService.createProduct(req.body, req.file);
     res.status(201).json({
       message: 'Product created successfully',
       data: product,

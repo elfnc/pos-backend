@@ -1,13 +1,30 @@
 import prisma from "../lib/prisma.js";
+import slugify from "slugify";
 
-export const createProduct = async (productData) => {
-  const { name, price, stock } = productData;
+export const createProduct = async (productData, file) => {
+  const { name, price, stock, categoryId } = productData;
+
+  let slug = slugify(name, { lower: true, strict: true });
+  
+  const checkSlug = await prisma.product.findUnique({ where: { slug } });
+  if (checkSlug) {
+    slug = slug + '-' + Date.now();
+  }
+
+  let imageUrl = null;
+  if (file) {
+    // Simpan path relatif agar bisa diakses static
+    imageUrl = `/uploads/products/${file.filename}`;
+  }
 
   const product = await prisma.product.create({
     data: {
       name,
+      slug,
       price: parseInt(price),
       stock: parseInt(stock),
+      image: imageUrl,
+      categoryId: categoryId || null,
     },
   });
   return product;
@@ -25,6 +42,7 @@ export const getAllProducts = async (page = 1, limit = 10) => {
       skip: parseInt(skip),
       take: parseInt(limit),
       orderBy: { createdAt: "desc" },
+      include: { category: true }
     }),
     prisma.product.count({ where: whereCondition }), // Hitung hanya yg aktif
   ]);
@@ -44,8 +62,9 @@ export const getProductById = async (id) => {
   const product = await prisma.product.findFirst({
     where: {
       id,
-      deletedAt: null, // Pastikan tidak mengambil barang yang sudah dihapus
+      deletedAt: null,
     },
+    include: { category: true }
   });
 
   if (!product) {
@@ -56,15 +75,24 @@ export const getProductById = async (id) => {
   return product;
 };
 
-export const updateProduct = async (id, productData) => {
+export const updateProduct = async (id, productData, file) => {
   await getProductById(id);
-  const { name, price, stock } = productData;
+  const { name, price, stock, categoryId } = productData;
+
+  let imageUrl = null;
+  if (file) {
+    // Simpan path relatif agar bisa diakses static
+    imageUrl = `/uploads/products/${file.filename}`;
+  }
+  
   return await prisma.product.update({
     where: { id },
     data: {
       name,
       price: price ? parseInt(price) : undefined,
       stock: stock ? parseInt(stock) : undefined,
+      image: imageUrl,
+      categoryId: categoryId || null,
     },
   });
 };

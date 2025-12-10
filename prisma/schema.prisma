@@ -30,16 +30,31 @@ model User {
   transactions Transaction[]
 }
 
+model Category {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  products  Product[]
+}
+
 model Product {
   id        String   @id @default(uuid())
   name      String
+  slug      String   @unique
   price     Int
   stock     Int
+  image     String? 
+  
+  // Relasi ke Category
+  categoryId String?
+  category   Category? @relation(fields: [categoryId], references: [id])
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  deletedAt DateTime?
+  deletedAt DateTime? 
 
-  // Relasi: Satu produk bisa ada di banyak item transaksi
   transactionItems TransactionItem[]
 }
 
