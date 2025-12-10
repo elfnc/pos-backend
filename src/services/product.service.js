@@ -3,12 +3,6 @@ import prisma from "../lib/prisma.js"
 export const createProduct = async (productData) => {
   const { name, price, stock } = productData;
 
-  if (!name || !price || stock === undefined) {
-    const error = new Error('Name, price, and stock are required');
-    error.status = 400;
-    throw error;
-  }
-
   const product = await prisma.product.create({
     data: {
       name,
@@ -19,8 +13,27 @@ export const createProduct = async (productData) => {
   return product;
 };
 
-export const getAllProducts = async () => {
-  return await prisma.product.findMany();
+export const getAllProducts = async (page = 1, limit = 10) => {
+  const skip = (page - 1) * limit;
+
+  const [products, total] = await Promise.all([
+    prisma.product.findMany({
+      skip: parseInt(skip),
+      take: parseInt(limit),
+      orderBy: { createdAt: 'desc' }
+    }),
+    prisma.product.count()
+  ]);
+
+  return {
+    data: products,
+    meta: {
+      total,
+      page: parseInt(page),
+      limit: parseInt(limit),
+      totalPages: Math.ceil(total / limit)
+    }
+  };
 };
 
 export const getProductById = async (id) => {
