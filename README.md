@@ -163,5 +163,3 @@ Jika menggunakan `npm run seed`:
 -----
 
 Built with ❤️ by [Eldevs]
-
-```
