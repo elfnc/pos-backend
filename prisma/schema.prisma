@@ -86,3 +86,16 @@ model TransactionItem {
   productId String
   product   Product @relation(fields: [productId], references: [id])
 }
+
+model Setting {
+  id           String   @id @default(uuid())
+  storeName    String   @default("My POS Store")
+  storeAddress String?
+  storePhone   String?
+  
+  // Pengaturan Printer
+  receiptFooter    String?  @default("Terima Kasih atas Kunjungan Anda")
+  printerWidth     Int      @default(58) // Opsi: 58 atau 80 (mm)
+  
+  updatedAt    DateTime @updatedAt
+}
