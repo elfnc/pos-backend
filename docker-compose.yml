@@ -1,19 +1,38 @@
-# Versi file docker-compose
 version: '3.8'
 
 services:
+  # Service 1: Aplikasi Backend (Node.js)
+  app:
+    container_name: pos_backend
+    build: .
+    restart: always
+    ports:
+      - "5000:5000"
+    depends_on:
+      - db
+    environment:
+      - PORT=5000
+      - NODE_ENV=production
+      # Ganti 'localhost' dengan 'db' (nama service database di bawah)
+      - DATABASE_URL=postgresql://ets:iyan0010@db:5432/db_pos?schema=public
+      - JWT_SECRET=rahasia_super_aman_ganti_ini
+    volumes:
+      # Mapping folder uploads agar gambar produk tidak hilang saat container direstart
+      - ./public/uploads:/app/public/uploads
+
+  # Service 2: Database (PostgreSQL)
   db:
     image: postgres:16
+    container_name: pos_db
     restart: always
     environment:
       POSTGRES_USER: ets
       POSTGRES_PASSWORD: iyan0010
       POSTGRES_DB: db_pos
     ports:
-      - '5432:5432'
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
-# Mendefinisikan volume yang akan digunakan oleh services
 volumes:
   postgres_data:
