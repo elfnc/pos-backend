@@ -1,4 +1,4 @@
-````markdown
+````
 # POS Backend API (Point of Sale)
 
 Backend API untuk sistem Kasir (Point of Sale) yang dibangun menggunakan Node.js, Express, dan Prisma ORM. Proyek ini dirancang dengan arsitektur **Layered Architecture** (Controller-Service-Repository) untuk skalabilitas, keamanan, dan kemudahan pemeliharaan.
