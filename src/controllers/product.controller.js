@@ -44,7 +44,7 @@ export const getProductById = async (req, res, next) => {
 export const updateProduct = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const product = await productService.updateProduct(id, req.body);
+    const product = await productService.updateProduct(id, req.body, req.file);
     res.status(200).json({
       message: 'Product updated successfully',
       data: product,

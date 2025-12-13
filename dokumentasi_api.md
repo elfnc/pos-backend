@@ -192,7 +192,8 @@ API ini menggunakan standar kode status HTTP dan format respons error yang konsi
         { "productId": "uuid-produk-1", "quantity": 2 },
         { "productId": "uuid-produk-2", "quantity": 1 }
       ],
-      "paymentAmount": 100000
+      "paymentAmount": 100000,
+      "paymentMethod": "TRANSFER"
     }
     ```
 

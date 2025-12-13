@@ -19,6 +19,9 @@ export const createTransactionSchema = Joi.object({
   paymentAmount: Joi.number().integer().min(0).required().messages({
     'number.base': 'Jumlah pembayaran harus berupa angka',
     'any.required': 'Jumlah pembayaran wajib diisi'
+  }),
+  paymentMethod: Joi.string().valid('CASH', 'TRANSFER').default('CASH').messages({
+    'any.only': 'Metode pembayaran tidak valid (Gunakan: CASH atau TRANSFER)'
   })
 });
 

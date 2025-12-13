@@ -1,7 +1,7 @@
 import prisma from '../lib/prisma.js'
 
 export const createTransaction = async (transactionData, userId) => {
-  const { items, paymentAmount } = transactionData;
+  const { items, paymentAmount, paymentMethod = 'CASH' } = transactionData;
 
   const productIds = items.map((item) => item.productId);
 
@@ -40,7 +40,7 @@ export const createTransaction = async (transactionData, userId) => {
 
     // 4. Buat Record Transaksi
     const transaction = await tx.transaction.create({
-      data: { userId, totalAmount, paymentAmount, changeAmount },
+      data: { userId, totalAmount, paymentAmount, changeAmount, paymentMethod: paymentMethod },
     });
 
     // 5. Buat Record Item Transaksi

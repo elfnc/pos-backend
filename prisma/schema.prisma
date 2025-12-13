@@ -64,6 +64,7 @@ model Transaction {
   totalAmount   Int 
   paymentAmount Int 
   changeAmount  Int
+  paymentMethod PaymentMethod @default(CASH)
   createdAt     DateTime @default(now())
 
   userId String
@@ -98,4 +99,10 @@ model Setting {
   printerWidth     Int      @default(58) // Opsi: 58 atau 80 (mm)
   
   updatedAt    DateTime @updatedAt
+}
+
+enum PaymentMethod {
+  CASH
+  TRANSFER
+  // Bisa tambah QRIS / DEBIT
 }

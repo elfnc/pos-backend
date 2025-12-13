@@ -24,7 +24,8 @@ app.get('/api/health', (req, res) => {
   res.status(200).json({ message: 'Welcome to POS API' });
 });
 
-app.use('/uploads', express.static(path.join(process.cwd(), 'public/uploads')));
+const __dirname = path.resolve();
+app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 app.use('/api', mainRouter);
 
 app.use(errorMiddleware);

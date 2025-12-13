@@ -76,24 +76,33 @@ export const getProductById = async (id) => {
 };
 
 export const updateProduct = async (id, productData, file) => {
-  await getProductById(id);
-  const { name, price, stock, categoryId } = productData;
+  const oldProduct = await getProductById(id); // Akan throw error jika tidak ada
 
-  let imageUrl = null;
-  if (file) {
-    // Simpan path relatif agar bisa diakses static
-    imageUrl = `/uploads/products/${file.filename}`;
+  const { name, price, stock, categoryId } = productData;
+  const updateData = {};
+
+  // 2. Update field text jika ada
+  if (name) {
+    updateData.name = name;
+    // Opsional: Update slug jika nama berubah
+    // updateData.slug = slugify(name, { lower: true, strict: true }); 
   }
-  
+  if (price) updateData.price = parseInt(price);
+  if (stock) updateData.stock = parseInt(stock);
+  if (categoryId) updateData.categoryId = categoryId;
+
+  // 3. Update Gambar jika ada file baru yang diupload
+  if (file) {
+    updateData.image = `/uploads/products/${file.filename}`;
+    
+    // (Opsional) Hapus file gambar lama dari server fisik di sini jika perlu
+    // if (oldProduct.image) { fs.unlink(...) }
+  }
+
+  // 4. Simpan ke Database
   return await prisma.product.update({
     where: { id },
-    data: {
-      name,
-      price: price ? parseInt(price) : undefined,
-      stock: stock ? parseInt(stock) : undefined,
-      image: imageUrl,
-      categoryId: categoryId || null,
-    },
+    data: updateData,
   });
 };
 
